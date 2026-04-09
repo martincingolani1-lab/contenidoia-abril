@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contenido con IA para E-commerce — Martin Cingolani</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root {
+    --bg-primary: #09090B;
+    --bg-secondary: #111113;
+    --bg-card: #18181B;
+    --bg-card-hover: #1F1F23;
+    --border: #27272A;
+    --border-light: #3F3F46;
+    --text-primary: #FAFAFA;
+    --text-secondary: #A1A1AA;
+    --text-muted: #71717A;
+    --accent: #6366F1;
+    --accent-light: #818CF8;
+    --accent-glow: rgba(99,102,241,0.15);
+    --green: #22C55E;
+    --green-muted: rgba(34,197,94,0.12);
+    --red: #EF4444;
+    --red-muted: rgba(239,68,68,0.1);
+    --amber: #F59E0B;
+    --amber-muted: rgba(245,158,11,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ─── SLIDE SYSTEM ─── */
+  .slide {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 48px;
+    scroll-snap-align: start;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide-inner {
+    max-width: 1100px;
+    width: 100%;
+    z-index: 2;
+  }
+
+  /* ─── NAV DOTS ─── */
+  .nav-dots {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 100;
+  }
+
+  .nav-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border-light);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .nav-dot:hover, .nav-dot.active {
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+    transform: scale(1.4);
+  }
+
+  /* ─── COMMON ELEMENTS ─── */
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent-light);
+    margin-bottom: 24px;
+    padding: 6px 14px;
+    background: var(--accent-glow);
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 6px;
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.12;
+    margin-bottom: 20px;
+    letter-spacing: -1px;
+    color: var(--text-primary);
+  }
+
+  .section-subtitle {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    max-width: 640px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  /* ─── SLIDE 1: HERO ─── */
+  .slide-hero {
+    background: var(--bg-primary);
+  }
+
+  .slide-hero::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    right: -15%;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 65%);
+    border-radius: 50%;
+  }
+
+  .slide-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(34,197,94,0.04) 0%, transparent 65%);
+    border-radius: 50%;
+  }
+
+  .hero-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .hero-content { max-width: 680px; }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 7px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    margin-bottom: 36px;
+    color: var(--text-muted);
+  }
+
+  .hero-badge .dot {
+    width: 6px;
+    height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+    50% { opacity: 0.5; box-shadow: none; }
+  }
+
+  .hero-title {
+    font-size: clamp(2.8rem, 5vw, 4.2rem);
+    font-weight: 900;
+    line-height: 1.05;
+    margin-bottom: 28px;
+    letter-spacing: -2px;
+  }
+
+  .hero-title .gradient-text {
+    background: linear-gradient(135deg, var(--accent-light) 0%, #A78BFA 50%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--text-secondary);
+    max-width: 540px;
+    line-height: 1.8;
+    margin-bottom: 48px;
+  }
+
+  .hero-author {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .hero-author-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+  }
+
+  .hero-author-info { display: flex; flex-direction: column; gap: 2px; }
+  .hero-author-name { font-weight: 600; font-size: 1rem; }
+  .hero-author-role { font-size: 0.82rem; color: var(--text-muted); }
+
+  /* ─── SLIDE 2: EXPERIENCIA ─── */
+  .slide-experience { background: var(--bg-secondary); }
+
+  .exp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 16px;
+  }
+
+  .exp-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 32px;
+    transition: all 0.3s ease;
+  }
+
+  .exp-card:hover {
+    border-color: var(--border-light);
+    background: var(--bg-card-hover);
+  }
+
+  .exp-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+  }
+
+  .exp-card p {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  .exp-highlight {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--green);
+    background: var(--green-muted);
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+
+  .exp-stat {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--accent-light);
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+  }
+
+  /* ─── SLIDE 3: PROBLEMA ─── */
+  .slide-problem { background: var(--bg-primary); }
+
+  .pain-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 20px;
+  }
+
+  .pain-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 24px;
+    transition: all 0.3s ease;
+  }
+
+  .pain-card:hover {
+    border-color: var(--border-light);
+    transform: translateY(-3px);
+  }
+
+  .pain-icon {
+    font-size: 1.6rem;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .pain-card h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+
+  .pain-card p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+
+  /* ─── SLIDE 4: SOLUCION ─── */
+  .slide-solution { background: var(--bg-secondary); }
+
+  .solution-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .solution-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 28px;
+    transition: all 0.3s ease;
+  }
+
+  .solution-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 30px var(--accent-glow);
+  }
+
+  .solution-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent-light);
+    background: var(--accent-glow);
+    border: 1px solid rgba(99,102,241,0.2);
+    padding: 4px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 18px;
+  }
+
+  .solution-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+  }
+
+  .solution-card p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  /* ─── SLIDE 5: PROCESO ─── */
+  .slide-process { background: var(--bg-primary); }
+
+  .process-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .process-step {
+    text-align: center;
+    padding: 28px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .process-step:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-light);
+    opacity: 0.6;
+    margin-bottom: 12px;
+  }
+
+  .process-step h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+  }
+
+  .process-step p {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+
+  /* ─── SLIDE 6: PRICING ─── */
+  .slide-pricing { background: var(--bg-secondary); }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    align-items: stretch;
+  }
+
+  .pricing-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 28px;
+    text-align: center;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .pricing-card:hover {
+    border-color: var(--border-light);
+    transform: translateY(-4px);
+  }
+
+  .pricing-card.featured {
+    border-color: var(--accent);
+    box-shadow: 0 0 40px var(--accent-glow), inset 0 1px 0 rgba(99,102,241,0.2);
+  }
+
+  .pricing-card.featured::before {
+    content: 'Recomendado';
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: white;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 5px 20px;
+    border-radius: 0 0 10px 10px;
+  }
+
+  .pricing-plan-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .featured .pricing-plan-name { color: var(--accent-light); }
+
+  .pricing-videos {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+
+  .pricing-price {
+    font-size: 3.4rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 4px;
+    letter-spacing: -2px;
+  }
+
+  .pricing-price .currency {
+    font-size: 1.3rem;
+    font-weight: 600;
+    vertical-align: super;
+    margin-right: 2px;
+    color: var(--text-muted);
+  }
+
+  .pricing-period {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .pricing-per-video {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--green);
+    font-weight: 600;
+    margin-bottom: 28px;
+    padding: 5px 14px;
+    background: var(--green-muted);
+    border-radius: 6px;
+    display: inline-block;
+  }
+
+  .pricing-savings {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--amber);
+    font-weight: 600;
+    margin-bottom: 24px;
+    padding: 4px 12px;
+    background: var(--amber-muted);
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .pricing-features {
+    list-style: none;
+    text-align: left;
+    margin-bottom: 0;
+  }
+
+  .pricing-features li {
+    padding: 9px 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .pricing-features li:last-child { border-bottom: none; }
+
+  .pricing-features .check {
+    color: var(--green);
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .pricing-note {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    padding: 14px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: inline-block;
+  }
+
+  .pricing-note strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .pricing-note-wrapper { text-align: center; }
+
+  /* ─── SLIDE 7: COMPARATIVA ─── */
+  .slide-compare { background: var(--bg-primary); }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--bg-card);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .compare-table th {
+    background: rgba(99,102,241,0.08);
+    color: var(--text-primary);
+    padding: 18px 24px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .compare-table td {
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+  }
+
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .compare-table .label-col {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .tag-trad {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: var(--red-muted);
+    color: var(--red);
+  }
+
+  .tag-ia {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: var(--green-muted);
+    color: var(--green);
+  }
+
+  /* ─── SLIDE 8: CIERRE ─── */
+  .slide-close {
+    background: var(--bg-primary);
+    text-align: center;
+  }
+
+  .slide-close::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 60%);
+    border-radius: 50%;
+  }
+
+  .close-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+    margin-bottom: 28px;
+  }
+
+  .close-title {
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+  }
+
+  .close-subtitle {
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: var(--text-secondary);
+    max-width: 480px;
+    margin: 0 auto 40px;
+    line-height: 1.7;
+  }
+
+  .close-contact {
+    display: flex;
+    justify-content: center;
+    gap: 36px;
+    flex-wrap: wrap;
+  }
+
+  .close-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    padding: 10px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .close-contact-item strong {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .close-date {
+    margin-top: 40px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ─── PRINT ─── */
+  @media print {
+    html { scroll-snap-type: none; }
+    .slide { page-break-after: always; page-break-inside: avoid; }
+    .slide:last-child { page-break-after: auto; }
+    .nav-dots { display: none; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  @media (max-width: 768px) {
+    .slide { padding: 40px 20px; }
+    .process-steps, .pricing-grid, .solution-grid, .exp-grid { grid-template-columns: 1fr; }
+    .nav-dots { display: none; }
+    .hero-top { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav-dots" id="navDots"></nav>
+
+<!-- ═══════════ SLIDE 1: HERO ═══════════ -->
+<section class="slide slide-hero" id="slide-1">
+  <div class="slide-inner">
+    <div class="hero-badge"><span class="dot"></span> Propuesta — Abril 2026</div>
+    <div class="hero-top">
+      <div class="hero-content">
+        <h1 class="hero-title">
+          Video ads con<br>
+          <span class="gradient-text">Inteligencia Artificial</span><br>
+          para tu e-commerce
+        </h1>
+        <p class="hero-subtitle">
+          Creamos video ads de alta conversion para tus productos fisicos, con la velocidad y eficiencia de la IA. Mas contenido, menor costo, mejores resultados.
+        </p>
+        <div class="hero-author">
+          <img class="hero-author-avatar" src="data:image/jpeg;base64,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" alt="Martin Cingolani">
+          <div class="hero-author-info">
+            <span class="hero-author-name">Martin Cingolani</span>
+            <span class="hero-author-role">Creador de contenido con IA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 2: EXPERIENCIA ═══════════ -->
+<section class="slide slide-experience" id="slide-2">
+  <div class="slide-inner">
+    <span class="section-label">Sobre mi</span>
+    <h2 class="section-title">Experiencia real creando<br>contenido con IA</h2>
+    <p class="section-subtitle">
+      No es teoria. Trabajo con inteligencia artificial para crear contenido publicitario todos los dias, para mis propios negocios y para clientes.
+    </p>
+    <div class="exp-grid">
+      <div class="exp-card">
+        <span class="exp-highlight">Mi negocio</span>
+        <h3>Tienda Foco</h3>
+        <p>Mi e-commerce de iluminacion artesanal, <strong>100% impulsado por contenido generado con IA</strong> desde hace mas de un año. Todos los videos publicitarios, contenido para redes y creatividades son producidos con herramientas de IA.</p>
+      </div>
+      <div class="exp-card">
+        <span class="exp-highlight">Clientes</span>
+        <h3>Diversos rubros</h3>
+        <p>Experiencia creando video ads con IA para clientes de distintos sectores: moda, decoracion, gastronomia, tecnologia y mas. Cada proyecto me permite refinar el proceso y la calidad de los resultados.</p>
+      </div>
+      <div class="exp-card">
+        <div class="exp-stat">+1 año</div>
+        <h3>Produccion continua</h3>
+        <p>Mas de un año produciendo contenido con IA de forma profesional. Conozco las herramientas, sus limites y como sacar el maximo provecho de cada una.</p>
+      </div>
+      <div class="exp-card">
+        <div class="exp-stat">9:16</div>
+        <h3>Formato vertical</h3>
+        <p>Especializado en contenido vertical optimizado para Meta Ads, TikTok Ads, Instagram Reels y YouTube Shorts. El formato que mejor convierte hoy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 3: PROBLEMA ═══════════ -->
+<section class="slide slide-problem" id="slide-3">
+  <div class="slide-inner">
+    <span class="section-label">El desafio</span>
+    <h2 class="section-title">Crear video ads para<br>e-commerce no es facil</h2>
+    <p class="section-subtitle">
+      Tu tienda necesita contenido constante para vender, pero los metodos tradicionales son lentos, caros y no escalan.
+    </p>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <span class="pain-icon">&#128176;</span>
+        <h3>Costo elevado</h3>
+        <p>Un video publicitario tradicional puede costar entre $300 y $2.000+ USD. Multiplica eso por cada producto que tenes.</p>
+      </div>
+      <div class="pain-card">
+        <span class="pain-icon">&#9203;</span>
+        <h3>Tiempos largos</h3>
+        <p>Produccion, edicion, revisiones... Un solo video puede tomar 1 a 3 semanas. Tu competencia ya publico 10 ads.</p>
+      </div>
+      <div class="pain-card">
+        <span class="pain-icon">&#128200;</span>
+        <h3>Necesitas volumen</h3>
+        <p>Los algoritmos de Meta y TikTok premian el volumen de creativos. Un solo video no alcanza para testear y escalar.</p>
+      </div>
+      <div class="pain-card">
+        <span class="pain-icon">&#127916;</span>
+        <h3>No sos videografo</h3>
+        <p>Tu expertise es vender productos, no producir videos. Necesitas enfocarte en lo que genera ingresos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 4: SOLUCION ═══════════ -->
+<section class="slide slide-solution" id="slide-4">
+  <div class="slide-inner">
+    <span class="section-label">La solucion</span>
+    <h2 class="section-title">Video ads con IA:<br>rapido, accesible y escalable</h2>
+    <p class="section-subtitle">
+      Usamos herramientas de inteligencia artificial de ultima generacion para crear videos publicitarios en formato vertical (9:16) listos para tus campañas.
+    </p>
+    <div class="solution-grid">
+      <div class="solution-card">
+        <span class="solution-number">01</span>
+        <h3>Produccion acelerada</h3>
+        <p>Lo que antes tomaba semanas, ahora se entrega en <strong style="color:var(--text-primary)">48-72 horas</strong>. Tu contenido listo para publicar cuando lo necesites.</p>
+      </div>
+      <div class="solution-card">
+        <span class="solution-number">02</span>
+        <h3>Costo accesible</h3>
+        <p>Desde <strong style="color:var(--text-primary)">$17 USD por video</strong> con los packs mensuales. Una fraccion del costo tradicional.</p>
+      </div>
+      <div class="solution-card">
+        <span class="solution-number">03</span>
+        <h3>Volumen para testear</h3>
+        <p>Crea multiples variaciones de tus ads para <strong style="color:var(--text-primary)">testear, iterar y escalar</strong> las creatividades ganadoras.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 5: PROCESO ═══════════ -->
+<section class="slide slide-process" id="slide-5">
+  <div class="slide-inner">
+    <span class="section-label">Como funciona</span>
+    <h2 class="section-title">Un proceso simple<br>y sin complicaciones</h2>
+    <p class="section-subtitle">
+      Vos me pasas la info de tu producto y yo me encargo del resto.
+    </p>
+    <div class="process-steps">
+      <div class="process-step">
+        <div class="step-num">01</div>
+        <h3>Brief</h3>
+        <p>Me contas sobre tu producto, tu publico y el objetivo del video. Fotos, links, lo que tengas.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">02</div>
+        <h3>Guion + IA</h3>
+        <p>Creo el guion publicitario y genero el video con herramientas de IA de ultima generacion.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">03</div>
+        <h3>Edicion</h3>
+        <p>Post-produccion profesional: musica, textos, transiciones y optimizacion para plataformas.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">04</div>
+        <h3>Entrega</h3>
+        <p>Recibis tu video en formato 9:16 listo para publicar en 48-72hs. Incluye 1 ronda de revision.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 6: PRECIOS ═══════════ -->
+<section class="slide slide-pricing" id="slide-6">
+  <div class="slide-inner">
+    <span class="section-label">Planes y precios</span>
+    <h2 class="section-title">Elegi el plan que mejor<br>se adapte a tu negocio</h2>
+    <p class="section-subtitle">
+      Todos los videos en formato vertical 9:16, optimizados para Meta Ads, TikTok Ads e Instagram. Sin contratos largos, cancela cuando quieras.
+    </p>
+
+    <div class="pricing-grid">
+      <!-- STARTER -->
+      <div class="pricing-card">
+        <div class="pricing-plan-name">Starter</div>
+        <div class="pricing-videos">4 videos / mes</div>
+        <div class="pricing-price"><span class="currency">$</span>89</div>
+        <div class="pricing-period">USD / mes</div>
+        <div class="pricing-per-video">$22.25 por video</div>
+        <div class="pricing-savings">Ahorro: $11 vs. comprar sueltos</div>
+        <ul class="pricing-features">
+          <li><span class="check">&#10003;</span> 4 video ads en formato 9:16</li>
+          <li><span class="check">&#10003;</span> 1 ronda de revision por video</li>
+          <li><span class="check">&#10003;</span> Entrega en 72 horas</li>
+          <li><span class="check">&#10003;</span> Musica y textos incluidos</li>
+        </ul>
+      </div>
+
+      <!-- GROWTH -->
+      <div class="pricing-card featured">
+        <div class="pricing-plan-name">Growth</div>
+        <div class="pricing-videos">8 videos / mes</div>
+        <div class="pricing-price"><span class="currency">$</span>159</div>
+        <div class="pricing-period">USD / mes</div>
+        <div class="pricing-per-video">$19.88 por video</div>
+        <div class="pricing-savings">Ahorro: $41 vs. comprar sueltos</div>
+        <ul class="pricing-features">
+          <li><span class="check">&#10003;</span> 8 video ads en formato 9:16</li>
+          <li><span class="check">&#10003;</span> 1 ronda de revision por video</li>
+          <li><span class="check">&#10003;</span> Entrega en 48 horas</li>
+          <li><span class="check">&#10003;</span> Variaciones A/B incluidas</li>
+          <li><span class="check">&#10003;</span> Guion publicitario optimizado</li>
+        </ul>
+      </div>
+
+      <!-- SCALE -->
+      <div class="pricing-card">
+        <div class="pricing-plan-name">Scale</div>
+        <div class="pricing-videos">16 videos / mes</div>
+        <div class="pricing-price"><span class="currency">$</span>279</div>
+        <div class="pricing-period">USD / mes</div>
+        <div class="pricing-per-video">$17.44 por video</div>
+        <div class="pricing-savings">Ahorro: $121 vs. comprar sueltos</div>
+        <ul class="pricing-features">
+          <li><span class="check">&#10003;</span> 16 video ads en formato 9:16</li>
+          <li><span class="check">&#10003;</span> 1 ronda de revision por video</li>
+          <li><span class="check">&#10003;</span> Entrega prioritaria (24-48hs)</li>
+          <li><span class="check">&#10003;</span> Estrategia de contenido mensual</li>
+          <li><span class="check">&#10003;</span> Soporte por WhatsApp directo</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pricing-note-wrapper">
+      <div class="pricing-note">
+        Video suelto: <strong>$25 USD</strong> cada uno, sin compromiso mensual
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 7: COMPARATIVA ═══════════ -->
+<section class="slide slide-compare" id="slide-7">
+  <div class="slide-inner">
+    <span class="section-label">Comparacion</span>
+    <h2 class="section-title">Video tradicional vs.<br>Video con IA</h2>
+    <p class="section-subtitle">
+      Los numeros hablan solos.
+    </p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="width:30%"></th>
+          <th style="width:35%">Video Tradicional</th>
+          <th style="width:35%">Video con IA</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="label-col">Costo por video</td>
+          <td><span class="tag-trad">$300 – $2.000+</span></td>
+          <td><span class="tag-ia">Desde $17</span></td>
+        </tr>
+        <tr>
+          <td class="label-col">Tiempo de entrega</td>
+          <td><span class="tag-trad">1 – 3 semanas</span></td>
+          <td><span class="tag-ia">24 – 72 horas</span></td>
+        </tr>
+        <tr>
+          <td class="label-col">Revisiones</td>
+          <td><span class="tag-trad">Costo extra</span></td>
+          <td><span class="tag-ia">1 ronda incluida</span></td>
+        </tr>
+        <tr>
+          <td class="label-col">Escalar volumen</td>
+          <td><span class="tag-trad">Dificil y caro</span></td>
+          <td><span class="tag-ia">Facil y accesible</span></td>
+        </tr>
+        <tr>
+          <td class="label-col">Testeo A/B</td>
+          <td><span class="tag-trad">Limitado</span></td>
+          <td><span class="tag-ia">Multiples variaciones</span></td>
+        </tr>
+        <tr>
+          <td class="label-col">Compromiso</td>
+          <td><span class="tag-trad">Contratos largos</span></td>
+          <td><span class="tag-ia">Sin compromiso</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 8: CIERRE ═══════════ -->
+<section class="slide slide-close" id="slide-8">
+  <div class="slide-inner">
+    <img class="close-avatar" src="data:image/jpeg;base64,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" alt="Martin Cingolani">
+    <h2 class="close-title">Martin Cingolani</h2>
+    <p class="close-subtitle">
+      Gracias por tu tiempo. Quedo a disposicion para cualquier consulta o para arrancar cuando quieras.
+    </p>
+    <div class="close-contact">
+      <div class="close-contact-item">
+        <span>&#9993;</span>
+        <strong>martincingolani1@gmail.com</strong>
+      </div>
+    </div>
+    <div class="close-date">Propuesta valida — Abril 2026</div>
+  </div>
+</section>
+
+<script>
+(function() {
+  const slides = document.querySelectorAll('.slide');
+  const navContainer = document.getElementById('navDots');
+  slides.forEach((slide, i) => {
+    const dot = document.createElement('button');
+    dot.classList.add('nav-dot');
+    dot.setAttribute('aria-label', 'Slide ' + (i + 1));
+    dot.addEventListener('click', () => slide.scrollIntoView({ behavior: 'smooth' }));
+    navContainer.appendChild(dot);
+  });
+  const dots = document.querySelectorAll('.nav-dot');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const index = Array.from(slides).indexOf(entry.target);
+        dots.forEach((d, i) => d.classList.toggle('active', i === index));
+      }
+    });
+  }, { threshold: 0.5 });
+  slides.forEach(slide => observer.observe(slide));
+})();
+</script>
+
+</body>
+</html>
